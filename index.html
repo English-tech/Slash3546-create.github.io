@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        div {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            color: #333;
+        }
+
+        #new-todo {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        #new-todo:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        li input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.1);
+        }
+
+        li label {
+            flex: 1;
+            color: #333;
+        }
+
+        li button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        li button:hover {
+            background-color: #e60000;
+        }
+
+        p {
+            font-size: 13px;
+            color: #666;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>Todo List</h1>
+        <button id="new-todo">Add Todo</button>
+        <ul id="todo-list"></ul>
+        <p>Total: <span id="total-count">0</span></p>
+        <p>Uncompleted: <span id="uncompleted-count">0</span></p>
+    </div>
+    <script>
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+        function newTodo() {
+            const task = prompt('Enter new task:');
+            if (task) {
+                todos.push({ id: Date.now(), text: task, completed: false });
+                localStorage.setItem('todos', JSON.stringify(todos));
+                render();
+                updateCounter();
+            }
+        }
+
+        function renderTodo(todo) {
+            return `
+    <li>
+      <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="checkTodo(${todo.id})">
+      <label style="text-decoration: ${todo.completed ? 'line-through' : 'none'}">${todo.text}</label>
+      <button onclick="deleteTodo(${todo.id})">Delete</button>
+    </li>
+  `;
+        }
+
+        function render() {
+            const todoList = document.querySelector('#todo-list');
+            const html = todos.map(renderTodo).join('');
+            todoList.innerHTML = html;
+        }
+
+        function updateCounter() {
+            const total = todos.length;
+            const uncompleted = todos.filter(todo => !todo.completed).length;
+            document.querySelector('#total-count').textContent = total;
+            document.querySelector('#uncompleted-count').textContent = uncompleted;
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(todo => todo.id !== id);
+            localStorage.setItem('todos', JSON.stringify(todos));
+            render();
+            updateCounter();
+        }
+
+        function checkTodo(id) {
+            todos = todos.map(todo =>
+                todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            );
+            localStorage.setItem('todos', JSON.stringify(todos));
+            render();
+            updateCounter();
+        }
+
+        document.querySelector('#new-todo').addEventListener('click', newTodo);
+
+        render();
+        updateCounter();
+    </script>
+</body>
+
+</html>
